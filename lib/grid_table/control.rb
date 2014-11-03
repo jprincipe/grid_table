@@ -2,10 +2,8 @@ class GridTable::Control
   include ActiveModel::Validations
   include ActiveModel::Conversion
 
-  included do
-    extend ActiveModel::Naming
-    extend ActiveModel::Translation
-  end
+  extend ActiveModel::Naming
+  extend ActiveModel::Translation
 
   # Initializes a new model with the given +params+.
   #
