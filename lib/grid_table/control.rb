@@ -1,5 +1,42 @@
 class GridTable::Control
-  include ActiveModel::Model
+  include ActiveModel::Validations
+  include ActiveModel::Conversion
+
+  included do
+    extend ActiveModel::Naming
+    extend ActiveModel::Translation
+  end
+
+  # Initializes a new model with the given +params+.
+  #
+  #   class Person
+  #     include ActiveModel::Model
+  #     attr_accessor :name, :age
+  #   end
+  #
+  #   person = Person.new(name: 'bob', age: '18')
+  #   person.name # => "bob"
+  #   person.age  # => "18"
+  def initialize(params={})
+    params.each do |attr, value|
+      self.public_send("#{attr}=", value)
+    end if params
+
+    super()
+  end
+
+  # Indicates if the model is persisted. Default is +false+.
+  #
+  #  class Person
+  #    include ActiveModel::Model
+  #    attr_accessor :id, :name
+  #  end
+  #
+  #  person = Person.new(id: 1, name: 'bob')
+  #  person.persisted? # => false
+  def persisted?
+    false
+  end
 
   attr_writer :model, :attribute, :source, :source_class, :source_column, :filter, :polymorphic
 
