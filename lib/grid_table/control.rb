@@ -92,7 +92,7 @@ class GridTable::Control
       end
       records
     else
-      joined_control? ? records.includes(active_source).references(active_source) : records
+      joined_control? ? records.includes(active_source) : records
     end
   end
 
