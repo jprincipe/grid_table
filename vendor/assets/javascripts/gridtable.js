@@ -271,7 +271,7 @@ GridTable = (function() {
           _this.updateSortDisplay();
           _this.updatePagerDisplay(data.total_rows);
           if (typeof _this.loadDataCompleteCallback === "function") {
-            return _this.loadDataCompleteCallback();
+            return _this.loadDataCompleteCallback(data);
           }
         };
       })(this)
