@@ -109,7 +109,7 @@ GridTable = (function() {
         $column = $(column);
         $column.append(" <i class='" + sortIcons['default'] + "'></i>");
         if ($column.data('default-sort')) {
-          _this.setSort($column.data('field'), $column.data('default-sort'));
+          _this.setSort($column.data('field'), $column.data('default-sort'), true);
         }
         return $column.on('click', function(event) {
           _this.gridTableParams.setSort($(event.currentTarget).data('field'), null);
@@ -196,9 +196,12 @@ GridTable = (function() {
     }
   };
 
-  GridTable.prototype.setSort = function(column, direction) {
+  GridTable.prototype.setSort = function(column, direction, initialSort) {
+    if (typeof initialSort === 'undefined') {
+      initialSort = false;
+    }
     this.gridTableParams.setSort(column, direction);
-    if (this.gridTableDOM !== null) {
+    if (this.gridTableDOM !== null && initialSort === false) {
       return this.loadData();
     }
   };
