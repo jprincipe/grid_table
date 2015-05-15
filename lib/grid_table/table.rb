@@ -19,7 +19,7 @@ class GridTable::Table
   end
 
   def populate!(resource, params)
-    @params   = params
+    @params   = HashWithIndifferentAccess.new(params)
     @records  = resource
 
     filter!
