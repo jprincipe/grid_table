@@ -22,8 +22,8 @@ class GridTable::Table
     @params   = HashWithIndifferentAccess.new(params)
     @records  = resource
 
-    filter!
-    sort!
+    filter! unless params[:skip_filtering]
+    sort! unless params[:skip_sorting]
     @total_rows = @records.size
     page! unless params[:skip_paging]
 

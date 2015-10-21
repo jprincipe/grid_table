@@ -46,7 +46,8 @@ class GridTable::Control
         prefix:      ->(col) { col.matches("#{param_filter_value}%") },
         suffix:      ->(col) { col.matches("%#{param_filter_value}") },
         fuzzy:       ->(col) { col.matches("%#{param_filter_value}%") },
-        array:       ->(col) { "#{column.to_s} @> ARRAY[#{[param_filter_value].flatten.join(',')}]" }
+        array:       ->(col) { "#{column.to_s} @> ARRAY[#{[param_filter_value].flatten.join(',')}]" },
+        date_range:  ->(col) { "#{source_table.name}.#{column.to_s} BETWEEN #{param_filter_value}" }
       }
 
       polymorphic_models.each_with_index do |klass, i|
