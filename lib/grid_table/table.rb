@@ -43,7 +43,7 @@ class GridTable::Table
   end
 
   def page
-    (@params[:page] || 0).to_i
+    [@params[:page].to_i, 0].max
   end
 
   def page_size
