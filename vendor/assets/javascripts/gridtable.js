@@ -322,7 +322,7 @@ GridTable = (function() {
       $(previous).on('click', (function(_this) {
         return function(event) {
           event.preventDefault();
-          return _this.setPage(Math.max ((_this.gridTableParams.page - 1), 1));
+          return _this.setPage(Math.max ((_this.gridTableParams.page - 1), 0));
         };
       })(this));
     } else {
