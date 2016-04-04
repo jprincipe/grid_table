@@ -234,6 +234,9 @@ GridTable = (function() {
   };
 
   GridTable.prototype.loadData = function(params) {
+    if ($($('li#pagedisplay')[0]).data('initial-page')) {
+      this.gridTableParams.page = $($('li#pagedisplay')[0]).data('initial-page');
+    }
     if (params == null) {
       params = {};
     }
@@ -280,6 +283,11 @@ GridTable = (function() {
       })(this)
     });
   };
+
+  GridTable.prototype.clearInitialValues = function() {
+    $('li#pagedisplay').data('initial-page', null);
+    $('li#pagedisplay').data('initial-id', null);
+  }
 
   GridTable.prototype.exportData = function() {
     var baseUrl, url;
