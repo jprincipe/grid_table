@@ -234,8 +234,8 @@ GridTable = (function() {
   };
 
   GridTable.prototype.loadData = function(params) {
-    if ($($('li#pagedisplay')[0]).data('initial-page')) {
-      this.gridTableParams.page = $($('li#pagedisplay')[0]).data('initial-page');
+    if ($('li#pagedisplay').data('initial-page') != null) {
+      this.gridTableParams.page = $('li#pagedisplay').data('initial-page');
     }
     if (params == null) {
       params = {};
