@@ -74,9 +74,9 @@ GridTable = (function() {
   var GridTableParams, sortIcons;
 
   sortIcons = {
-    "default": 'fi-sort',
-    asc: 'fi-sort-down',
-    desc: 'fi-sort-up'
+    "default": 'fa-sort',
+    asc: 'fa-sort-desc',
+    desc: 'fa-sort-asc'
   };
 
   GridTable.prototype.gridTableParams = null;
@@ -107,7 +107,7 @@ GridTable = (function() {
       return function(index, column) {
         var $column;
         $column = $(column);
-        $column.append(" <i class='" + sortIcons['default'] + "'></i>");
+        $column.append(" <i class='fa " + sortIcons['default'] + "'></i>");
         if ($column.data('default-sort')) {
           _this.setSort($column.data('field'), $column.data('default-sort'), true);
         }
