@@ -19,7 +19,10 @@ class GridTable::Table
   end
 
   def populate!(resource, params)
-    @params   = HashWithIndifferentAccess.new(params)
+    # In Rails 5 ActionController::Parameters returns an object rather than a hash
+    # It provides the to_h method in order to return a hash (with indifferent access) of safe parameters
+    # Rails 4 and below returns a regular hash so we need to account for that
+    @params   = params.to_h.with_indifferent_access
     @records  = resource
 
     filter! unless params[:skip_filtering]
