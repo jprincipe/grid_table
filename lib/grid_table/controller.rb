@@ -18,7 +18,7 @@ module GridTable
       end
     end
 
-    def grid_table_export_for(resource, params, options = {})
+    def grid_table_export_for(resource, params)
       grid_table = resource.grid_table
       params[:skip_paging] ||= true
       grid_table.populate!(resource, params)

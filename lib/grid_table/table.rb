@@ -7,15 +7,15 @@ class GridTable::Table
 
   def add_control(model, attribute, options)
     @controls << GridTable::Control.new(
-      {
-        model: model.name.underscore.to_sym,
-        attribute: attribute,
-        source: options[:source],
-        source_class: options[:source_class],
-        source_column: options[:source_column],
-        filter: options[:filter],
-        polymorphic: options[:polymorphic]
-      })
+      model: model.name.underscore.to_sym,
+      attribute: attribute,
+      source: options[:source],
+      source_class: options[:source_class],
+      source_column: options[:source_column],
+      source_alias: options[:source_alias],
+      filter: options[:filter],
+      polymorphic: options[:polymorphic]
+    )
   end
 
   def populate!(resource, params)
@@ -26,8 +26,8 @@ class GridTable::Table
     @records  = resource
 
     filter! unless params[:skip_filtering]
+    @total_rows = @records.length
     sort! unless params[:skip_sorting]
-    @total_rows = @records.size
     page! unless params[:skip_paging]
 
     @records
@@ -42,7 +42,7 @@ class GridTable::Table
   private
 
   def common_strong_params
-    [:page, :page_size, :sort, :sort_order]
+    %w(page page_size sort sort_order)
   end
 
   def page
@@ -54,7 +54,8 @@ class GridTable::Table
   end
 
   def filter!
-    @params.each do |attribute, attribute_value|
+    filter_params = @params.reject { |k| common_strong_params.include?(k) }
+    filter_params.each do |attribute, attribute_value|
       control = GridTable::Control.find_by_param(attribute, @controls)
       @records = control.filter(attribute_value, @records) if control.present?
     end
@@ -63,13 +64,10 @@ class GridTable::Table
   def sort!
     control = GridTable::Control.find_by_param(@params[:sort], @controls)
 
-    if control.present?
-      @records = control.sort(@params[:sort_order], records)
-    end
+    @records = control.sort(@params[:sort_order], records) if control.present?
   end
 
   def page!
     @records = @records.offset(page * page_size).limit(page_size)
   end
-
 end

@@ -15,10 +15,8 @@ class GridTable::Control
   #   person = Person.new(name: 'bob', age: '18')
   #   person.name # => "bob"
   #   person.age  # => "18"
-  def initialize(params={})
-    params.each do |attr, value|
-      self.public_send("#{attr}=", value)
-    end if params
+  def initialize(params = {})
+    params.each { |attr, value| public_send("#{attr}=", value) } if params
 
     super()
   end
@@ -36,36 +34,32 @@ class GridTable::Control
     false
   end
 
-  attr_writer :model, :attribute, :source, :source_class, :source_column, :filter, :polymorphic
+  attr_writer :model, :attribute, :source, :source_class, :source_column, :source_alias, :filter, :polymorphic
 
   def filter(param_filter_value, records)
-    unless @filter == false
-      arel_query = nil
-      strategy_map = {
-        exact_match: ->(col) { col.eq(param_filter_value) },
-        prefix:      ->(col) { col.matches("#{param_filter_value}%") },
-        suffix:      ->(col) { col.matches("%#{param_filter_value}") },
-        fuzzy:       ->(col) { col.matches("%#{param_filter_value}%") },
-        array:       ->(col) { "#{column.to_s} @> ARRAY[#{[param_filter_value].flatten.join(',')}]" },
-        date_range:  ->(col) { "#{source_table.name}.#{column.to_s} BETWEEN #{param_filter_value}" }
-      }
+    return if @filter.nil?
 
-      polymorphic_models.each_with_index do |klass, i|
-        # TODO implement array filtering
-        if i == 0
-          arel_query = strategy_map[strategy].call(klass.arel_table[column])
-        else
-          arel_query = arel_query.or(strategy_map[strategy].call(klass.arel_table[column]))
-        end
-      end
+    arel_query = nil
+    strategy_map = {
+      exact_match: ->(col) { col.eq(param_filter_value) },
+      prefix:      ->(col) { col.matches("#{param_filter_value}%") },
+      suffix:      ->(col) { col.matches("%#{param_filter_value}") },
+      fuzzy:       ->(col) { col.matches("%#{param_filter_value}%") },
+      array:       ->(_col) { "#{column} @> ARRAY[#{[param_filter_value].flatten.join(',')}]" },
+      date_range:  ->(_col) { "#{source_table.name}.#{column} BETWEEN #{param_filter_value}" }
+    }
 
-      arel_query ||= strategy_map[strategy].call(source_table[column])
-      prepared_records(records).where(arel_query)
+    polymorphic_models.each_with_index do |klass, i|
+      # TODO: implement array filtering
+      arel_query = i.zero? ? strategy_map[strategy].call(klass.arel_table[column]) : arel_query.or(strategy_map[strategy].call(klass.arel_table[column]))
     end
+
+    arel_query ||= strategy_map[strategy].call(source_table[column])
+    prepared_records(records).where(arel_query)
   end
 
   def sort(param_sort_order, records)
-    sort_order = %w[asc, desc].include?(param_sort_order) ? param_sort_order : 'asc'
+    sort_order = %w(asc desc).include?(param_sort_order) ? param_sort_order : 'asc'
 
     if @polymorphic
       models = polymorphic_models
@@ -119,7 +113,7 @@ class GridTable::Control
   end
 
   def table_with_column
-    "#{source_table.name}.#{column}"
+    @source_alias || "#{source_table.name}.#{column}"
   end
 
   def model_fk
@@ -132,7 +126,7 @@ class GridTable::Control
     models.each_with_index do |klass, i|
       if models.length == 1
         sql = "#{klass.table_name}.#{column}"
-      elsif i == 0
+      elsif i.zero?
         sql << "(CASE WHEN #{klass.table_name}.#{column} IS NOT NULL THEN #{klass.table_name}.#{column}"
       elsif i == models.length - 1
         sql << " ELSE #{klass.table_name}.#{column} END)"
