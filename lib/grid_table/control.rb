@@ -34,27 +34,27 @@ class GridTable::Control
     false
   end
 
-  attr_writer :model, :attribute, :source, :source_class, :source_column, :source_alias, :filter, :polymorphic
+  attr_writer :model, :attribute, :source, :source_class, :source_column, :source_sql, :filter, :polymorphic
 
   def filter(param_filter_value, records)
-    return if @filter.nil?
+    return records if @filter == false
 
     arel_query = nil
     strategy_map = {
-      exact_match: ->(col) { col.eq(param_filter_value) },
-      prefix:      ->(col) { col.matches("#{param_filter_value}%") },
-      suffix:      ->(col) { col.matches("%#{param_filter_value}") },
-      fuzzy:       ->(col) { col.matches("%#{param_filter_value}%") },
-      array:       ->(_col) { "#{column} @> ARRAY[#{[param_filter_value].flatten.join(',')}]" },
-      date_range:  ->(_col) { "#{source_table.name}.#{column} BETWEEN #{param_filter_value}" }
+      exact_match: ->(col) { "(#{col}) = #{param_filter_value}" },
+      prefix:      ->(col) { "(#{col}) ILIKE '#{param_filter_value}%'" },
+      suffix:      ->(col) { "(#{col}) ILIKE '%#{param_filter_value}'" },
+      fuzzy:       ->(col) { "(#{col}) ILIKE '%#{param_filter_value}%'" },
+      array:       ->(col) { "(#{col}) @> ARRAY[#{[param_filter_value].flatten.join(',')}]" },
+      date_range:  ->(_col) { "(#{col}) BETWEEN #{param_filter_value}" }
     }
 
     polymorphic_models.each_with_index do |klass, i|
       # TODO: implement array filtering
-      arel_query = i.zero? ? strategy_map[strategy].call(klass.arel_table[column]) : arel_query.or(strategy_map[strategy].call(klass.arel_table[column]))
+      arel_query = i.zero? ? strategy_map[strategy].call(polymorphic_table_with_column(klass)) : arel_query.or(strategy_map[strategy].call(polymorphic_table_with_column(klass)))
     end
 
-    arel_query ||= strategy_map[strategy].call(source_table[column])
+    arel_query ||= strategy_map[strategy].call(table_with_column)
     prepared_records(records).where(arel_query)
   end
 
@@ -113,7 +113,11 @@ class GridTable::Control
   end
 
   def table_with_column
-    @source_alias || "#{source_table.name}.#{column}"
+    @source_sql || "#{source_table.name}.#{column}"
+  end
+
+  def polymorphic_table_with_column(klass)
+    @source_sql || "#{klass.arel_table.name}.#{klass.arel_table[column].name}"
   end
 
   def model_fk

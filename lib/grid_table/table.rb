@@ -12,7 +12,7 @@ class GridTable::Table
       source: options[:source],
       source_class: options[:source_class],
       source_column: options[:source_column],
-      source_alias: options[:source_alias],
+      source_sql: options[:source_sql],
       filter: options[:filter],
       polymorphic: options[:polymorphic]
     )
