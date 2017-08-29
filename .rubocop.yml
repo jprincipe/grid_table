@@ -1,0 +1,42 @@
+AllCops:
+  Include:
+    - Rakefile
+    - '**/Gemfile'
+    - config.ru
+    - lib/**/*.rake
+  Exclude:
+    - db/schema.rb
+    - spec/*
+    - test/*
+
+Metrics/AbcSize:
+  Enabled: false
+
+# Offense count: 1
+# Configuration parameters: CountComments.
+Metrics/ClassLength:
+  Enabled: false
+
+# Offense count: 16
+# Configuration parameters: AllowHeredoc, AllowURI, URISchemes, IgnoreCopDirectives, IgnoredPatterns.
+# URISchemes: http, https
+Metrics/LineLength:
+  Enabled: false
+
+# Offense count: 4
+# Configuration parameters: CountComments.
+Metrics/MethodLength:
+  Enabled: false
+
+# Offense count: 2
+# Configuration parameters: EnforcedStyle, SupportedStyles.
+# SupportedStyles: nested, compact
+Style/ClassAndModuleChildren:
+  Enabled: false
+
+# Offense count: 4
+Style/Documentation:
+  Enabled: false
+
+Style/FrozenStringLiteralComment:
+  Enabled: false

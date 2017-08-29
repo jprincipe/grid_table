@@ -42,7 +42,7 @@ class GridTable::Table
   private
 
   def common_strong_params
-    %w(page page_size sort sort_order)
+    %w[page page_size sort sort_order]
   end
 
   def page

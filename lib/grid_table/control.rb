@@ -16,7 +16,7 @@ class GridTable::Control
   #   person.name # => "bob"
   #   person.age  # => "18"
   def initialize(params = {})
-    params.each { |attr, value| public_send("#{attr}=", value) } if params
+    params&.each { |attr, value| public_send("#{attr}=", value) }
 
     super()
   end
@@ -59,7 +59,7 @@ class GridTable::Control
   end
 
   def sort(param_sort_order, records)
-    sort_order = %w(asc desc).include?(param_sort_order) ? param_sort_order : 'asc'
+    sort_order = %w[asc desc].include?(param_sort_order) ? param_sort_order : 'asc'
 
     if @polymorphic
       models = polymorphic_models
