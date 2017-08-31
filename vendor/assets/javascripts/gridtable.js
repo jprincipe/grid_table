@@ -80,13 +80,9 @@ GridTable = (function() {
   };
 
   GridTable.prototype.gridTableParams = null;
-
   GridTable.prototype.gridTableDOM = null;
-
   GridTable.prototype.loadDataCompleteCallback = null;
-
   GridTable.prototype.loadDataStartCallback = null;
-
   GridTable.prototype.loadDataErrorCallback = null;
 
   function GridTable(params) {
@@ -139,22 +135,28 @@ GridTable = (function() {
         });
       };
     })(this));
-    this.gridTableDOM.find('.grid-pager #pagesize').each((function(_this) {
+    this.gridTableDOM.find('#pagesize, .pagesize').each((function(_this) {
       return function(index, elem) {
         var pageSizeSelect, size, _i, _len, _ref;
-        pageSizeSelect = '<select id="page-size-select">';
-        _ref = _this.gridTableParams.pageSizeOptions;
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          size = _ref[_i];
-          if (size === _this.gridTableParams.pageSize) {
-            pageSizeSelect += "<option selected value=\"" + size + "\">" + size + "</option>";
-          } else {
-            pageSizeSelect += "<option value=\"" + size + "\">" + size + "</option>";
+
+        pageSizeSelect = $(elem).find(".page-size-select");
+
+        if (pageSizeSelect == null) {
+          pageSizeSelect = '<select class="page-size-select">';
+          _ref = _this.gridTableParams.pageSizeOptions;
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            size = _ref[_i];
+            if (size === _this.gridTableParams.pageSize) {
+              pageSizeSelect += "<option selected value=\"" + size + "\">" + size + "</option>";
+            } else {
+              pageSizeSelect += "<option value=\"" + size + "\">" + size + "</option>";
+            }
           }
+          pageSizeSelect += '</select>';
+          $(elem).append(pageSizeSelect);
         }
-        pageSizeSelect += '</select>';
-        $(elem).append(pageSizeSelect);
-        return $(elem).find('#page-size-select').on("change", function(event) {
+
+        return $(elem).find('.page-size-select').on("change", function(event) {
           return _this.setPageSize($(event.currentTarget).val());
         });
       };
@@ -234,8 +236,10 @@ GridTable = (function() {
   };
 
   GridTable.prototype.loadData = function(params) {
-    if ($('li#pagedisplay').data('initial-page') != null) {
-      this.gridTableParams.page = $('li#pagedisplay').data('initial-page');
+    var page_display = this.gridTableDOM.find('#pagedisplay, .pagedisplay');
+
+    if (page_display.data('initial-page') != null) {
+      this.gridTableParams.page = page_display.data('initial-page');
     }
     if (params == null) {
       params = {};
@@ -285,8 +289,10 @@ GridTable = (function() {
   };
 
   GridTable.prototype.clearInitialValues = function() {
-    $('li#pagedisplay').data('initial-page', null);
-    $('li#pagedisplay').data('initial-id', null);
+    var page_display = this.gridTableDOM.find('#pagedisplay, .pagedisplay');
+
+    page_display.data('initial-page', null);
+    page_display.data('initial-id', null);
   }
 
   GridTable.prototype.exportData = function() {
@@ -303,11 +309,11 @@ GridTable = (function() {
   GridTable.prototype.updatePagerDisplay = function(total_rows) {
     var back_enabled, display, first, forward_enabled, last, last_page, next, pager, previous;
     pager = this.gridTableDOM.find('.grid-pager');
-    first = $(pager).find('#first');
-    previous = $(pager).find('#previous');
-    next = $(pager).find('#next');
-    last = $(pager).find('#last');
-    display = $(pager).find('#pagedisplay');
+    first = $(pager).find('#first, .first');
+    previous = $(pager).find('#previous, .previous');
+    next = $(pager).find('#next, .next');
+    last = $(pager).find('#last, .last');
+    display = $(pager).find('#pagedisplay, .pagedisplay');
     $(first).off('click');
     $(previous).off('click');
     $(next).off('click');
@@ -389,19 +395,12 @@ GridTable = (function() {
 
   GridTableParams = (function() {
     GridTableParams.prototype.id = null;
-
     GridTableParams.prototype.url = null;
-
     GridTableParams.prototype.sortCol = '';
-
     GridTableParams.prototype.sortOrder = '';
-
     GridTableParams.prototype.filter = {};
-
     GridTableParams.prototype.page = 0;
-
     GridTableParams.prototype.pageSize = 10;
-
     GridTableParams.prototype.pageSizeOptions = [5, 10, 25, 50, 100, 200];
 
     function GridTableParams(params) {
