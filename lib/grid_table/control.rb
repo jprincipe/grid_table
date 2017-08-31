@@ -70,8 +70,12 @@ class GridTable::Control
         records
       end
     else
-      prepared_records(records).order("#{table_with_column} #{sort_order}")
+      prepared_records(records).order("#{column} #{sort_order}")
     end
+  end
+
+  def select
+    "#{table_with_column} as #{column}"
   end
 
   def url_param

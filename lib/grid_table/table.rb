@@ -25,6 +25,7 @@ class GridTable::Table
     @params   = params.to_h.with_indifferent_access
     @records  = resource
 
+    select
     filter! unless params[:skip_filtering]
     @total_rows = @records.length
     sort! unless params[:skip_sorting]
@@ -42,7 +43,7 @@ class GridTable::Table
   private
 
   def common_strong_params
-    %w[page page_size sort sort_order]
+    %w(page page_size sort sort_order)
   end
 
   def page
@@ -59,6 +60,10 @@ class GridTable::Table
       control = GridTable::Control.find_by_param(attribute, @controls)
       @records = control.filter(attribute_value, @records) if control.present?
     end
+  end
+
+  def select
+    @records = @records.select(@controls.map(&:select).join(','))
   end
 
   def sort!
