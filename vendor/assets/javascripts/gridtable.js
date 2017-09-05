@@ -22,7 +22,7 @@ $(function() {
           }
           return gridtable.setUrl(url);
         } else {
-          return gridtable.setUrl(updateQueryString(n, _this.value, url));
+          return gridtable.setUrl(gridtable.updateQueryString(n, _this.value, url));
         }
       };
     })(this));
@@ -62,6 +62,7 @@ window.GridTableFactory = (function() {
       gridTable = GridTableFactory.get($table);
       return gridTable.refresh();
     });
+
     this.gridTableList[$table.data('grid-table-id') || this.defaultGridTableId] = gridTable;
     return gridTable;
   };
@@ -365,12 +366,12 @@ GridTable = (function() {
     return display.text("" + (this.gridTableParams.page + 1) + " of " + (last_page + 1) + " (" + total_rows + ")");
   };
 
-  GridTable.prototype.updateSortDisplay = function() {
+  GridTable.prototype.updateSortDisplay = function () {
     var field, sortOrder;
     field = this.gridTableParams.sortCol;
     sortOrder = this.gridTableParams.sortOrder;
-    return this.gridTableDOM.find('thead th[data-sort="true"], .thead [data-sort="true"]').each((function(_this) {
-      return function(i, c) {
+    return this.gridTableDOM.find('thead th[data-sort="true"], .thead [data-sort="true"]').each((function (_this) {
+      return function (i, c) {
         var value;
         value = $(c).data('field');
         if (value === field) {
@@ -391,6 +392,35 @@ GridTable = (function() {
         }
       };
     })(this));
+  };
+
+  GridTable.prototype.updateQueryString = function (key, value, url) {
+    var hash, re, separator;
+    if (!url) {
+      url = window.location.href;
+    }
+    re = new RegExp("([?&])" + key + "=.*?(&|#|$)(.*)", "gi");
+    if (re.test(url)) {
+      if (typeof value !== "undefined" && value !== null) {
+        url = url.replace(re, "$1" + key + "=" + value + "$2$3");
+      } else {
+        hash = url.split("#");
+        url = hash[0].replace(re, "$1$3").replace(/(&|\?)$/, "");
+        if (typeof hash[1] !== "undefined" && hash[1] !== null) {
+          url += "#" + hash[1];
+        }
+      }
+    } else {
+      if (typeof value !== "undefined" && value !== null) {
+        separator = (url.indexOf("?") !== -1 ? "&" : "?");
+        hash = url.split("#");
+        url = hash[0] + separator + key + "=" + value;
+        if (typeof hash[1] !== "undefined" && hash[1] !== null) {
+          url += "#" + hash[1];
+        }
+      }
+    }
+    return url;
   };
 
   GridTableParams = (function() {
