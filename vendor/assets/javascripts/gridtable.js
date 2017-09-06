@@ -2,13 +2,12 @@ var GridTable;
 
 $(function() {
   $('[data-grid-table-sort]').on('change', function() {
-    var gridtable;
-    gridtable = GridTableFactory.get($(this));
-    return gridtable.refresh((function(_this) {
-      return function() {
+    var gridtables = GridTableFactory.getAll($(this));
+    for (var i = 0; i < gridtables.length; i++) {
+      var gridtable = gridtables[i];
+      gridtable.refresh((function (_this) {
         var $checked, n, url;
         n = _this.name;
-        gridtable = GridTableFactory.get(_this);
         url = gridtable.getUrl();
         gridtable.setFilter(n, null, {
           skip_load: true
@@ -16,7 +15,7 @@ $(function() {
         if (_this.type === 'checkbox') {
           $checked = $(':checkbox[name="' + n + '"]:checked');
           if ($checked.length > 0) {
-            url += '?' + ($checked.map(function() {
+            url += '?' + ($checked.map(function () {
               return "" + n + "=" + this.value;
             }).toArray().join('&'));
           }
@@ -24,8 +23,12 @@ $(function() {
         } else {
           return gridtable.setUrl(gridtable.updateQueryString(n, _this.value, url));
         }
-      };
-    })(this));
+
+        return;
+      })(this));
+    }
+
+    return;
   });
   return $('.grid-table').each(function() {
     var $table;
@@ -37,18 +40,33 @@ $(function() {
 window.GridTableFactory = (function() {
   function GridTableFactory() {}
 
-  GridTableFactory.gridTableList = [];
+  GridTableFactory.gridTableList = {};
 
   GridTableFactory.defaultGridTableId = 'default-grid-table';
 
-  GridTableFactory.get = function(obj) {
-    var $gt, id;
+  GridTableFactory.get = function (obj) {
+    var gridtables = this.getAll(obj);
+
+    return gridtables.length > 0 ? gridtables[0] : null;
+  };
+
+  GridTableFactory.getAll = function (obj) {
+    var ids;
     if (typeof obj === 'object') {
-      id = $(obj).data('grid-table-id');
+      ids = ($(obj).data('grid-table-id') || this.defaultGridTableId).split(',');
     } else {
-      id = obj;
+      ids = [obj];
     }
-    return $gt = this.gridTableList[id || this.defaultGridTableId];
+
+    var gridtables = []
+    for (var i = 0; i < ids.length; i++) {
+      var gridtable = this.gridTableList[ids[i]];
+      if (gridtable) {
+        gridtables.push(gridtable);
+      }
+    }
+
+    return gridtables;
   };
 
   GridTableFactory.createGridTable = function(table, params) {
