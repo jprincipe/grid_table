@@ -5,7 +5,7 @@ $(function() {
     var gridtables = GridTableFactory.getAll($(this));
     for (var i = 0; i < gridtables.length; i++) {
       var gridtable = gridtables[i];
-      gridtable.refresh((function (_this) {
+      gridtable.refresh((function(_this) {
         var $checked, n, url;
         n = _this.name;
         url = gridtable.getUrl();
@@ -15,7 +15,7 @@ $(function() {
         if (_this.type === 'checkbox') {
           $checked = $(':checkbox[name="' + n + '"]:checked');
           if ($checked.length > 0) {
-            url += '?' + ($checked.map(function () {
+            url += '?' + ($checked.map(function() {
               return "" + n + "=" + this.value;
             }).toArray().join('&'));
           }
@@ -30,9 +30,9 @@ $(function() {
 
     return;
   });
+
   return $('.grid-table').each(function() {
-    var $table;
-    $table = $(this);
+    var $table = $(this);
     return GridTableFactory.createGridTable($table).loadGridTable($table);
   });
 });
@@ -41,16 +41,15 @@ window.GridTableFactory = (function() {
   function GridTableFactory() {}
 
   GridTableFactory.gridTableList = {};
-
   GridTableFactory.defaultGridTableId = 'default-grid-table';
 
-  GridTableFactory.get = function (obj) {
+  GridTableFactory.get = function(obj) {
     var gridtables = this.getAll(obj);
 
     return gridtables.length > 0 ? gridtables[0] : null;
   };
 
-  GridTableFactory.getAll = function (obj) {
+  GridTableFactory.getAll = function(obj) {
     var ids;
     if (typeof obj === 'object') {
       ids = ($(obj).data('grid-table-id') || this.defaultGridTableId).split(',');
@@ -90,14 +89,6 @@ window.GridTableFactory = (function() {
 })();
 
 GridTable = (function() {
-  var GridTableParams, sortIcons;
-
-  sortIcons = {
-    "default": 'fa fa-sort',
-    asc: 'fa fa-sort-desc',
-    desc: 'fa fa-sort-asc'
-  };
-
   GridTable.prototype.gridTableParams = null;
   GridTable.prototype.gridTableDOM = null;
   GridTable.prototype.loadDataCompleteCallback = null;
@@ -122,7 +113,7 @@ GridTable = (function() {
       return function(index, column) {
         var $column;
         $column = $(column);
-        $column.append("<i class='" + sortIcons['default'] + "'></i>");
+        $column.append("<i class='" + _this.gridTableParams.sortIcons['default'] + "'></i>");
         if ($column.data('default-sort')) {
           _this.setSort($column.data('field'), $column.data('default-sort'), true);
         }
@@ -355,7 +346,7 @@ GridTable = (function() {
       $(previous).on('click', (function(_this) {
         return function(event) {
           event.preventDefault();
-          return _this.setPage(Math.max ((_this.gridTableParams.page - 1), 0));
+          return _this.setPage(Math.max((_this.gridTableParams.page - 1), 0));
         };
       })(this));
     } else {
@@ -384,35 +375,35 @@ GridTable = (function() {
     return display.text("" + (this.gridTableParams.page + 1) + " of " + (last_page + 1) + " (" + total_rows + ")");
   };
 
-  GridTable.prototype.updateSortDisplay = function () {
+  GridTable.prototype.updateSortDisplay = function() {
     var field, sortOrder;
     field = this.gridTableParams.sortCol;
     sortOrder = this.gridTableParams.sortOrder;
-    return this.gridTableDOM.find('thead th[data-sort="true"], .thead [data-sort="true"]').each((function (_this) {
-      return function (i, c) {
+    return this.gridTableDOM.find('thead th[data-sort="true"], .thead [data-sort="true"]').each((function(_this) {
+      return function(i, c) {
         var value;
         value = $(c).data('field');
         if (value === field) {
           switch (sortOrder) {
             case 'asc':
               $(c).addClass('sorting');
-              return $(c).find('i').attr('class', sortIcons['asc']);
+              return $(c).find('i').attr('class', _this.gridTableParams.sortIcons['asc']);
             case 'desc':
               $(c).addClass('sorting');
-              return $(c).find('i').attr('class', sortIcons['desc']);
+              return $(c).find('i').attr('class', _this.gridTableParams.sortIcons['desc']);
             default:
               $(c).removeClass('sorting');
-              return $(c).find('i').attr('class', sortIcons['default']);
+              return $(c).find('i').attr('class', _this.gridTableParams.sortIcons['default']);
           }
         } else {
           $(c).removeClass('sorting');
-          return $(c).find('i').attr('class', sortIcons['default']);
+          return $(c).find('i').attr('class', _this.gridTableParams.sortIcons['default']);
         }
       };
     })(this));
   };
 
-  GridTable.prototype.updateQueryString = function (key, value, url) {
+  GridTable.prototype.updateQueryString = function(key, value, url) {
     var hash, re, separator;
     if (!url) {
       url = window.location.href;
@@ -450,9 +441,14 @@ GridTable = (function() {
     GridTableParams.prototype.page = 0;
     GridTableParams.prototype.pageSize = 10;
     GridTableParams.prototype.pageSizeOptions = [5, 10, 25, 50, 100, 200];
+    GridTableParams.prototype.sortIcons = {
+      "default": 'fa fa-sort',
+      "asc": 'fa fa-sort-desc',
+      "desc": 'fa fa-sort-asc'
+    };
 
     function GridTableParams(params) {
-      if ((params != null)) {
+      if (params != null) {
         if ('sortCol' in params) {
           this.sortCol = params['sortCol'];
         }
@@ -474,6 +470,9 @@ GridTable = (function() {
         if ('url' in params) {
           this.url = params['url'];
         }
+        if ('sortIcons' in params) {
+          this.sortIcons = params['sortIcons'];
+        }
       }
     }
 
@@ -487,6 +486,10 @@ GridTable = (function() {
 
     GridTableParams.prototype.setPageSize = function(pageSize) {
       return this.pageSize = pageSize;
+    };
+
+    GridTableParams.prototype.setSortIcons = function(sortIcons) {
+      return this.sortIcons = sortIcons;
     };
 
     GridTableParams.prototype.setSort = function(column, direction) {
