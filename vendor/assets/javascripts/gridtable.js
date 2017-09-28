@@ -317,13 +317,14 @@ GridTable = (function() {
   };
 
   GridTable.prototype.updatePagerDisplay = function(total_rows) {
-    var back_enabled, display, first, forward_enabled, last, last_page, next, pager, previous;
+    var back_enabled, display, display_format, first, forward_enabled, last, last_page, next, pager, previous;
     pager = this.gridTableDOM.find('.grid-pager');
     first = $(pager).find('#first, .first');
     previous = $(pager).find('#previous, .previous');
     next = $(pager).find('#next, .next');
     last = $(pager).find('#last, .last');
     display = $(pager).find('#pagedisplay, .pagedisplay');
+    display_format = $(display).data('format') || "${current_page} of ${last_page} (${total_rows})";
     $(first).off('click');
     $(previous).off('click');
     $(next).off('click');
@@ -372,7 +373,13 @@ GridTable = (function() {
       $(next).addClass('disabled');
       $(last).addClass('disabled');
     }
-    return display.text("" + (this.gridTableParams.page + 1) + " of " + (last_page + 1) + " (" + total_rows + ")");
+
+    var display_test = display_format.
+    replace("${current_page}", (this.gridTableParams.page + 1)).
+    replace("${last_page}", (last_page + 1)).
+    replace("${total_rows}", total_rows)
+
+    return display.text(display_test);
   };
 
   GridTable.prototype.updateSortDisplay = function() {
