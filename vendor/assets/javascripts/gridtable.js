@@ -123,20 +123,42 @@ GridTable = (function() {
         });
       };
     })(this));
-    this.gridTableDOM.find('select.row-filter').each((function(_this) {
+
+    var dataFilterSelector = "[data-grid-table-id='" + this.gridTableParams.getId() + "'][data-filter]";
+    $("select" + dataFilterSelector).each((function (_this) {
       return function(index, filter) {
+        _this.gridTableParams.setFilter($(filter).data('field'), $(filter).val());
         return $(filter).on("change", function(event) {
           _this.gridTableParams.setFilter($(filter).data('field'), $(filter).val());
           return _this.loadData();
         });
       };
     })(this));
-    this.gridTableDOM.find('input.row-filter').each((function(_this) {
+
+    // find non-selectable inputs
+    $("input:not([type=radio], [type=checkbox])" + dataFilterSelector).each((function (_this) {
+      return function (index, filter) {
+        var timeout;
+        timeout = null;
+        return $(filter).on("propertychange keyup input paste", function (event) {
+          clearTimeout(timeout);
+          return timeout = setTimeout((function () {
+            _this.gridTableParams.setFilter($(filter).data('field'), $(filter).val());
+            return _this.loadData();
+          }), 500);
+        });
+      };
+    })(this));
+
+    $("input:radio" + dataFilterSelector + ",input:checkbox" + dataFilterSelector).each((function (_this) {
       return function(index, filter) {
         var timeout;
-        _this.gridTableParams.setFilter($(filter).data('field'), $(filter).val());
+        // only setFilter for radio && checkbox inputs if they are also checked
+        if (filter.checked) {
+          _this.gridTableParams.setFilter($(filter).data('field'), $(filter).val());
+        }
         timeout = null;
-        return $(filter).on("propertychange keyup input paste", function(event) {
+        return $(filter).on("change", function(event) {
           clearTimeout(timeout);
           return timeout = setTimeout((function() {
             _this.gridTableParams.setFilter($(filter).data('field'), $(filter).val());
@@ -145,6 +167,7 @@ GridTable = (function() {
         });
       };
     })(this));
+
     this.gridTableDOM.find('#pagesize, .pagesize').each((function(_this) {
       return function(index, elem) {
         var pageSizeSelect, size, _i, _len, _ref;
@@ -188,6 +211,10 @@ GridTable = (function() {
 
   GridTable.prototype.setId = function(id) {
     return this.gridTableParams.setId(id);
+  };
+
+  GridTable.prototype.getId = function () {
+    return this.gridTableParams.getId();
   };
 
   GridTable.prototype.setUrl = function(url) {
@@ -485,6 +512,10 @@ GridTable = (function() {
 
     GridTableParams.prototype.setId = function(id) {
       return this.id = id;
+    };
+
+    GridTableParams.prototype.getId = function () {
+      return this.id;
     };
 
     GridTableParams.prototype.setUrl = function(url) {
