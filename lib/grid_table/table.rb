@@ -63,7 +63,7 @@ class GridTable::Table
   end
 
   def select
-    @records = @records.select(@controls.map(&:select).join(','))
+    @records = @records.select(@controls.map(&:select).push('*').join(','))
   end
 
   def sort!
