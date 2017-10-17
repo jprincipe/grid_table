@@ -2,7 +2,7 @@ module GridTable
   module Controller
     def grid_table_for(resource, params, options = {})
       grid_table = resource.grid_table
-      grid_table.populate!(resource, params)
+      grid_table.populate!(resource, params, options)
 
       if block_given?
         yield grid_table.records, grid_table.total_rows

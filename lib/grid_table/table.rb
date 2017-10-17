@@ -18,14 +18,15 @@ class GridTable::Table
     )
   end
 
-  def populate!(resource, params)
+  def populate!(resource, params, options)
     # In Rails 5 ActionController::Parameters returns an object rather than a hash
     # It provides the to_h method in order to return a hash (with indifferent access) of safe parameters
     # Rails 4 and below returns a regular hash so we need to account for that
     @params   = params.to_h.with_indifferent_access
     @records  = resource
+    aggregate = options[:aggregate] || false
 
-    select
+    select(aggregate: aggregate)
     filter! unless params[:skip_filtering]
     @total_rows = @records.length
     sort! unless params[:skip_sorting]
@@ -62,8 +63,11 @@ class GridTable::Table
     end
   end
 
-  def select
-    @records = @records.select(@controls.map(&:select).push('*').join(','))
+  def select(aggregate: false)
+    select_fields = @controls.map(&:select)
+    select_fields.push('*') unless aggregate
+
+    @records = @records.select(select_fields.join(','))
   end
 
   def sort!
