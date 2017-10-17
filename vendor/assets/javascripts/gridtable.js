@@ -123,30 +123,33 @@ GridTable = (function() {
         });
       };
     })(this));
-
-    var dataFilterSelector = "[data-grid-table-id='" + this.gridTableParams.getId() + "'][data-filter]";
+    var dataFilterSelector = "[data-filter]";
     $("select" + dataFilterSelector).each((function (_this) {
-      return function(index, filter) {
-        _this.gridTableParams.setFilter($(filter).data('field'), $(filter).val());
-        return $(filter).on("change", function(event) {
+      return function (index, filter) {
+        if ($(filter).data('grid-table-id').split(',').includes(_this.gridTableParams.getId())) {
           _this.gridTableParams.setFilter($(filter).data('field'), $(filter).val());
-          return _this.loadData();
-        });
+          return $(filter).on("change", function (event) {
+            _this.gridTableParams.setFilter($(filter).data('field'), $(filter).val());
+            return _this.loadData();
+          });
+        }
       };
     })(this));
 
     // find non-selectable inputs
     $("input:not([type=radio], [type=checkbox])" + dataFilterSelector).each((function (_this) {
       return function (index, filter) {
-        var timeout;
-        timeout = null;
-        return $(filter).on("propertychange keyup input paste", function (event) {
-          clearTimeout(timeout);
-          return timeout = setTimeout((function () {
-            _this.gridTableParams.setFilter($(filter).data('field'), $(filter).val());
-            return _this.loadData();
-          }), 500);
-        });
+        if ($(filter).data('grid-table-id').split(',').includes(_this.gridTableParams.getId())) {
+          var timeout;
+          timeout = null;
+          return $(filter).on("propertychange keyup input paste", function (event) {
+            clearTimeout(timeout);
+            return timeout = setTimeout((function () {
+              _this.gridTableParams.setFilter($(filter).data('field'), $(filter).val());
+              return _this.loadData();
+            }), 500);
+          });
+        }
       };
     })(this));
 
