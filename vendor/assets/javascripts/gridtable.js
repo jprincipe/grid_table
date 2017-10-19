@@ -123,10 +123,12 @@ GridTable = (function() {
         });
       };
     })(this));
+
     var dataFilterSelector = "[data-filter]";
+
     $("select" + dataFilterSelector).each((function (_this) {
       return function (index, filter) {
-        if ($(filter).data('grid-table-id').split(',').includes(_this.gridTableParams.getId())) {
+        if (_this.gridTableParams.includeFilter(filter)) {
           _this.gridTableParams.setFilter($(filter).data('field'), $(filter).val());
           return $(filter).on("change", function (event) {
             _this.gridTableParams.setFilter($(filter).data('field'), $(filter).val());
@@ -139,7 +141,7 @@ GridTable = (function() {
     // find non-selectable inputs
     $("input:not([type=radio], [type=checkbox])" + dataFilterSelector).each((function (_this) {
       return function (index, filter) {
-        if ($(filter).data('grid-table-id').split(',').includes(_this.gridTableParams.getId())) {
+        if (_this.gridTableParams.includeFilter(filter)) {
           var timeout;
           timeout = null;
           return $(filter).on("propertychange keyup input paste", function (event) {
@@ -155,19 +157,21 @@ GridTable = (function() {
 
     $("input:radio" + dataFilterSelector + ",input:checkbox" + dataFilterSelector).each((function (_this) {
       return function(index, filter) {
-        var timeout;
-        // only setFilter for radio && checkbox inputs if they are also checked
-        if (filter.checked) {
-          _this.gridTableParams.setFilter($(filter).data('field'), $(filter).val());
-        }
-        timeout = null;
-        return $(filter).on("change", function(event) {
-          clearTimeout(timeout);
-          return timeout = setTimeout((function() {
+        if (_this.gridTableParams.includeFilter(filter)) {
+          var timeout;
+          // only setFilter for radio && checkbox inputs if they are also checked
+          if (filter.checked) {
             _this.gridTableParams.setFilter($(filter).data('field'), $(filter).val());
-            return _this.loadData();
-          }), 500);
-        });
+          }
+          timeout = null;
+          return $(filter).on("change", function(event) {
+            clearTimeout(timeout);
+            return timeout = setTimeout((function() {
+              _this.gridTableParams.setFilter($(filter).data('field'), $(filter).val());
+              return _this.loadData();
+            }), 500);
+          });
+        }
       };
     })(this));
 
@@ -553,6 +557,12 @@ GridTable = (function() {
         return this.filter[column] = value;
       }
     };
+
+    GridTableParams.prototype.includeFilter = function (filter) {
+      var gridTableIds = $(filter).data('grid-table-id');
+
+      return $.inArray(this.id, gridTableIds.split(','));
+    }
 
     GridTableParams.prototype.buildUrl = function(baseUrl, skip_paging) {
       var k, url, v, _ref;
