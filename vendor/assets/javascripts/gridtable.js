@@ -561,7 +561,7 @@ GridTable = (function() {
     GridTableParams.prototype.includeFilter = function (filter) {
       var gridTableIds = $(filter).data('grid-table-id');
 
-      return $.inArray(this.id, gridTableIds.split(','));
+      return $.inArray(this.id, gridTableIds.split(',')) >= 0;
     }
 
     GridTableParams.prototype.buildUrl = function(baseUrl, skip_paging) {
