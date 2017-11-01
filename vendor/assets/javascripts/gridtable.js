@@ -308,13 +308,14 @@ GridTable = (function() {
       success: (function(_this) {
         return function(data, textStatus, jqXHR) {
           var row, _i, _len, _ref;
-          _this.gridTableDOM.find('tbody, .tbody').children().not('.no-results').remove();
-          _this.gridTableDOM.find('.no-results').addClass('hide');
+          var noResultsSelector = '.no-results,[data-grid-table-no-results]';
+          _this.gridTableDOM.find('tbody, .tbody').children().not(noResultsSelector).remove();
+          _this.gridTableDOM.find(noResultsSelector).hide();
           if (data.totals) {
             _this.gridTableDOM.find('thead tr.totals, .thead tr.totals, .thead .tr.totals').html(data.totals);
           }
           if (data.rows.length === 0) {
-            _this.gridTableDOM.find('.no-results').removeClass('hide');
+            _this.gridTableDOM.find(noResultsSelector).show();
           } else {
             _ref = data.rows;
             for (_i = 0, _len = _ref.length; _i < _len; _i++) {
