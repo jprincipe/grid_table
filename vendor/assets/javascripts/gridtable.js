@@ -308,19 +308,21 @@ GridTable = (function() {
       success: (function(_this) {
         return function(data, textStatus, jqXHR) {
           var row, _i, _len, _ref;
-          var noResultsSelector = '.no-results,[data-grid-table-no-results]';
-          _this.gridTableDOM.find('tbody, .tbody').children().not(noResultsSelector).remove();
-          _this.gridTableDOM.find(noResultsSelector).hide();
+          var noResultsSelector = '.no-results, [data-grid-table-no-results]';
+          var $rows = _this.gridTableDOM.find('tbody, .tbody, [data-grid-table-rows]');
+          var $noResults = _this.gridTableDOM.find(noResultsSelector);
+          $rows.children().not(noResultsSelector).remove();
+          $noResults.hide();
           if (data.totals) {
             _this.gridTableDOM.find('thead tr.totals, .thead tr.totals, .thead .tr.totals').html(data.totals);
           }
           if (data.rows.length === 0) {
-            _this.gridTableDOM.find(noResultsSelector).show();
+            $noResults.show();
           } else {
             _ref = data.rows;
             for (_i = 0, _len = _ref.length; _i < _len; _i++) {
               row = _ref[_i];
-              _this.gridTableDOM.find('tbody, .tbody').append(row);
+              $rows.append(row);
             }
           }
           _this.updateSortDisplay();
