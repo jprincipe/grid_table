@@ -37,7 +37,7 @@ class GridTable::Control
   attr_writer :model, :attribute, :source, :source_class, :source_column, :source_sql, :filter, :polymorphic
 
   def filter(param_filter_value, records)
-    return records if @filter == false
+    return records if @filter == false || param_filter_value.blank?
 
     arel_query = nil
     strategy_map = {
